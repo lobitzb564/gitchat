@@ -2,7 +2,7 @@ import sys
 from github import Github
 import json
 if __name__ == "__main__":
-    token = "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"
+    token = "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"
     g = Github(token)
     username = sys.argv[1]
     message  = username + ": " + sys.argv[2]

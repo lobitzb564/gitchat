@@ -1,0 +1,10 @@
+{
+    "description": "DRIPCHECK",
+    "name": "interact",
+    "shell-version" :[
+        "3.41.2"
+    ],
+    "url": "",
+    "uuid": "interaction@extension.com",
+    "version":1
+}

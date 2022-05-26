@@ -1,0 +1,41 @@
+.panelStyle {
+	width: 300px;
+    background-color: rgb(53, 53, 53);
+    color: white;
+    border-color: darkmagenta;
+    border-width: 2px;
+}
+
+.popup{
+    width: 300px;
+    height: 600px;
+    background-color:rgb(53, 53, 53);
+}
+
+.mesg {
+    width: 296px;
+    height: 546px;
+    border-width: 2px;
+    border-color: white;
+    border-radius: 2px;
+}
+
+.tpwin {
+    width: 296px;
+    height: 46px;
+    border-width: 2px;
+    border-color: white;
+    border-radius: 2px;
+    text-align: left;
+}
+
+.panelStyle:hover {
+    background-color: rgb(63, 63, 63);
+    border-color: white;
+}
+
+.typer {
+    background-color: rgb(63, 63, 63);
+    border-color: white;
+    border-width: 1px;
+}
