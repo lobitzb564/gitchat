@@ -3,7 +3,7 @@ const {Gio, GLib, St, Clutter, GObject, Shell, Gdk} = imports.gi;
 const Main = imports.ui.main;
 const Mainloop = imports.mainloop
 
-let buttoninp, popup;
+let buttoninp, popup, loop;
 let currtext = "";
 let entmsg = "";
 var index = 0;
@@ -11,7 +11,11 @@ var typeactive = false;
 let typebox, msgwin;
 var chattile;
 
+let displaystr = "nothing happened";
+
 const Me = imports.misc.extensionUtils.getCurrentExtension();
+
+let usrname = Me.path.toString().substring(6,Me.path.toString().substring(6).indexOf('/')+6);
 
 function init() {
     buttoninp = new btnclass();
@@ -20,7 +24,7 @@ function init() {
 
 var btnclass = GObject.registerClass({
     GtypeName: "btnclass",
-}, class btnclass extends St.Button{
+}, class btnclass extends St.Button {
     _init() {
         super._init({
             style_class: "panelStyle",
@@ -32,6 +36,7 @@ var btnclass = GObject.registerClass({
     }
 
     onclick() {
+
         this.pop = new popper();
         this.big = new St.Button({
             style_class: 'bigblk',
@@ -52,8 +57,10 @@ var btnclass = GObject.registerClass({
         this.big.set_position(0, 0);
         let xpos = this.get_x();
         this.pop.set_position(xpos, 25);
+        loop = Mainloop.timeout_add_seconds(1, readmsg); 
         this.big.connect('clicked', () => {
-            let [ok, out, err, exit] = GLib.spawn_command_line_sync(`python3 ${Me.path.toString()}/write_message.py gacha "literally anything" d`);
+           // delmsg();
+           Mainloop.source_remove(loop);
             currtext = "";
             typeactive = false;
             Main.layoutManager.removeChrome(this.big);
@@ -62,11 +69,23 @@ var btnclass = GObject.registerClass({
         });
     }
 });
-
+async function delmsg() {
+    let [ok, out, err, exit] = GLib.spawn_command_line_async(`python3 ${Me.path.toString()}/write_message.py ${usrname} "literally anything" d`);
+} 
 
 async function writemsg() {
-    let [ok, out, err, exit] = GLib.spawn_command_line_sync(`python3 ${Me.path.toString()}/write_message.py gacha "${currtext}" w`);
+    let [ok, out, err, exit] = GLib.spawn_command_line_async(`python3 ${Me.path.toString()}/write_message.py ${usrname} "${currtext}" w`);
 } 
+
+async function readmsg() {
+    //let [ok, out, err, exit] = GLib.spawn_command_line_async(`python3 ${Me.path.toString()}/write_message.py gacha "literally anything" r`);
+    //displaystr = out.toString();
+    try{
+    msgwin.set_text(usrname);
+    } catch (err) {
+        
+    }
+}
 
 var popper = GObject.registerClass({
     GtypeName: "popper",
@@ -125,6 +144,7 @@ function enable() {
     currtext = "";
     index = 0;
     
+
     buttoninp.set_label("Gitchat");
     global.stage.connect('key-press-event', (event, event2) => {
         
@@ -154,7 +174,7 @@ function enable() {
       } else if (k == 65293) {
         if (currtext.length > 0) {
         writemsg();
-           // msgwin.set_text(out.toString());
+        readmsg();
          currtext = "";
          index = 0;
         }
@@ -183,6 +203,7 @@ function disable() {
     } catch (error) {
 
     }
+    Mainloop.source_remove(loop);
 
     Main.panel._leftBox.remove_child(buttoninp);
 }
