@@ -57,7 +57,7 @@ var btnclass = GObject.registerClass({
         this.big.set_position(0, 0);
         let xpos = this.get_x();
         this.pop.set_position(xpos, 25);
-        loop = Mainloop.timeout_add_seconds(1, readmsg); 
+        loop = Mainloop.timeout_add_seconds(15, readmsg); 
         this.big.connect('clicked', () => {
            // delmsg();
            Mainloop.source_remove(loop);
@@ -78,15 +78,23 @@ async function writemsg() {
 } 
 
 async function readmsg() {
-    //let [ok, out, err, exit] = GLib.spawn_command_line_async(`python3 ${Me.path.toString()}/write_message.py gacha "literally anything" r`);
-    //displaystr = out.toString();
-    try{
-    msgwin.set_text(usrname);
-    } catch (err) {
-        
-    }
+    readm();
 }
 
+
+async function readm() {
+    let [ok, out, err, exit] = GLib.spawn_command_line_sync(`python3 ${Me.path.toString()}/write_message.py ${usrname} "literally anything" r`);
+    let data = JSON.parse(out.toString()).messages;
+    var str = "";
+    for (let i = 0; i < data.length; i++) {
+        str += `${data[i].toString()} + \n`;
+    }
+    try{
+    msgwin.set_text(str);
+    } catch (err) {
+        
+    } 
+}
 var popper = GObject.registerClass({
     GtypeName: "popper",
 }, class popper extends St.Widget{
@@ -110,10 +118,18 @@ var popper = GObject.registerClass({
             label: "Send a Message",
             reactive: true,
         });
+        /*
+        let scr = new St.ScrollView({
+            reactive: true,
+            height: 550,
+            width: 296,
+        })
+        */
         this.connect("destroy", this.ondestroy.bind(this));
         this.insert_child_at_index(this.lay, 0);
-        this.lay.insert_child_at_index(msgwin,0);
-        this.lay.insert_child_at_index(typebox, 1);
+       // scr.set_child(msgwin);
+        this.lay.insert_child_at_index(msgwin, 0);
+        this.lay.insert_child_at_index(typebox,1);
         typebox.connect('clicked', this.ontypec.bind(this))
     }
 
