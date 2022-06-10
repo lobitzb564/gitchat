@@ -57,7 +57,8 @@ var btnclass = GObject.registerClass({
         this.big.set_position(0, 0);
         let xpos = this.get_x();
         this.pop.set_position(xpos, 25);
-        loop = Mainloop.timeout_add_seconds(15, readmsg); 
+        readmsg();
+        loop = Mainloop.timeout_add_seconds(7, readmsg); 
         this.big.connect('clicked', () => {
            // delmsg();
            Mainloop.source_remove(loop);
@@ -87,7 +88,40 @@ async function readm() {
     let data = JSON.parse(out.toString()).messages;
     var str = "";
     for (let i = 0; i < data.length; i++) {
-        str += `${data[i].toString()} + \n`;
+        let s = data[i].toString();
+        let num = parseInt(s.length/40);
+        let c = "";
+        let last = 0;
+        for (let o = 0; o < num; o++) {
+            let findex = o*40+40;
+            let jum = 0;
+            let found = true;
+            let ud = true;
+            while(jum < 5 && found) {
+                jum++
+                if (findex+jum < s.length) {
+                if (s.charAt(findex+jum) == ' ') {
+                    found = false;
+                } else if (s.charAt(findex-jum) == ' ') {
+                    found = false;
+                    ud = false;
+                }
+            }
+            }
+            if (!found) {
+                if (ud) {
+                    findex +=jum;
+                } else {
+                    findex -= jum;
+                }
+            }
+
+            c += s.substring(last, findex) + "\n";
+            last = findex;
+        }
+        c += s.substring(last)
+        str += `${c}\n`;
+
     }
     try{
     msgwin.set_text(str);
@@ -158,7 +192,7 @@ var Typebox = GObject.registerClass({
 function enable() {
 
     currtext = "";
-    index = 0;
+    index = -1;
     
 
     buttoninp.set_label("Gitchat");
@@ -189,10 +223,18 @@ function enable() {
         index = currtext.length - 1;
       } else if (k == 65293) {
         if (currtext.length > 0) {
+            if (currtext == "/clear") {
+
+            }
+          //  if (currtext.charAt(0) == '/'){
         writemsg();
-        readmsg();
          currtext = "";
-         index = 0;
+         index = -1;
+         readmsg();
+          //  } else {
+                //currtext = "";
+                //index = -1;
+            //}
         }
       } else if (k == 65289) {
         // do tab stuff
